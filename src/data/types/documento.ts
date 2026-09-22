@@ -1,0 +1,36 @@
+export interface Documento {
+  ID: number
+  Modified: string | null
+  'Editor#Claims': string | null
+  Editor: string | null
+  ComplianceAssetId: string | null
+  OData__ColorTag: string | null
+  Created: string | null
+  'Author#Claims': string | null
+  Author: string | null
+  'CheckoutUser#Claims': string | null
+  CheckoutUser: string | null
+  OData__DisplayName: string | null
+  '{Identifier}': string | null
+  '{IsFolder}': boolean | null
+  '{Thumbnail}': string | null
+  '{Link}': string | null
+  '{Name}': string | null
+  '{FilenameWithExtension}': string | null
+  '{Path}': string | null
+  '{FullPath}': string | null
+  '{ModerationStatus}': string | null
+  '{ModerationComment}': string | null
+  '{ContentType}#Id': string | null
+  '{IsCheckedOut}': boolean | null
+  '{DriveId}': string | null
+  '{DriveItemId}': string | null
+  '{SensitivityLabelId}': string | null
+  '{SensitivityLabelName}': string | null
+  '{VersionNumber}': string | null
+  '{TriggerWindowStartToken}': string | null
+  '{TriggerWindowEndToken}': string | null
+  Title: string | null
+  OData__ExtendedDescription: string | null
+  '{ContentType}': string | null
+}

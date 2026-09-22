@@ -1,0 +1,459 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Buscador:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      Height: =Max(App.Height ,App.MinScreenHeight)
+      LoadingSpinnerColor: =RGBA(0, 120, 212, 1)
+    Children:
+      - Container1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(15, 84, 140, 1)
+            Height: =46
+            Width: =1366
+          Children:
+            - Label1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  BorderStyle: =BorderStyle.None
+                  BorderThickness: =2
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  FocusedBorderThickness: =4
+                  Font: =Font.'Segoe UI'
+                  FontWeight: =FontWeight.Semibold
+                  Height: =22
+                  Size: =17
+                  Text: ="Post Audiencia - PJ Corrientes"
+                  Width: =605
+                  X: =24
+                  Y: =12
+            - Container2:
+                Control: GroupContainer@1.5.0
+                Variant: ManualLayout
+                Properties:
+                  Height: =46
+                  Width: =344
+                  X: =1020
+                Children:
+                  - Icon5:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        Color: =RGBA(214, 221, 224, 1)
+                        DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                        DisabledColor: =RGBA(225, 223, 221, 1)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =30
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverColor: =RGBA(16, 110, 190, 1)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Icon: =Icon.Person
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedColor: =RGBA(16, 110, 190, 1)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =50
+                        X: =65
+                        Y: =10
+                  - TextCanvas4:
+                      Control: Text@0.0.51
+                      Properties:
+                        FontColor: =RGBA(214, 221, 224, 1)
+                        Height: =34
+                        Size: =18
+                        Text: =User().FullName
+                        Width: =225
+                        X: =119
+                        Y: =12
+      - Container1_1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            BorderColor: =RGBA(180, 214, 250, 1)
+            BorderThickness: =1
+            Height: =548
+            Width: =1259
+            X: =32
+            Y: =183
+          Children:
+            - Gallery1:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                  BorderColor: =RGBA(180, 214, 250, 1)
+                  BorderThickness: =5
+                  Height: =548
+                  Items: |+
+                    =/*
+                    SortByColumns(
+                        Filter(
+                            Audiencia,
+                            // Filtro por CodBarras
+                            (IsBlank(TextInput1.Text) ||
+                                StartsWith(Text(CodBarras); TextInput1.Text)
+                            ) &&
+                            // Filtro por fecha DESDE
+                            (IsBlank(DatePickerDesde.SelectedDate) ||
+                                Fecha >= DatePickerDesde.SelectedDate
+                            ) &&
+                            // Filtro por fecha HASTA
+                            (IsBlank(DatePickerHasta.SelectedDate) ||
+                                Fecha <= DatePickerHasta.SelectedDate
+                            )
+                        );
+                        "Fecha";
+                        SortOrder.Descending
+                    )
+                    */
+
+                    SortByColumns(
+                        Filter(
+                            Audiencia,
+                            // Filtro por CodBarras (búsqueda aproximada)
+                            (
+                                IsBlank(TextInput1.Text) ||
+                                TextInput1.Text in Text(CodBarras)
+                            ) &&
+                            // Filtro por fecha DESDE
+                            (
+                                IsBlank(DatePickerDesde.SelectedDate) ||
+                                Fecha >= DatePickerDesde.SelectedDate
+                            ) &&
+                            // Filtro por fecha HASTA
+                            (
+                                IsBlank(DatePickerHasta.SelectedDate) ||
+                                Fecha <= DatePickerHasta.SelectedDate
+                            )
+                        ),
+                        "Fecha",
+                        SortOrder.Descending
+                    )
+                  TemplateSize: =96
+                  Transition: =Transition.Push
+                  Width: =1259
+                Children:
+                  - Rectangle4:
+                      Control: Rectangle@2.3.0
+                      Properties:
+                        BorderColor: =RGBA(180, 214, 250, 1)
+                        BorderThickness: =2
+                        DisabledFill: =RGBA(161, 159, 157, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =96
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        OnSelect: =Select(Parent)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =1249
+                  - Label5:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Bold
+                        OnSelect: =Select(Parent)
+                        Text: |-
+                          =LookUp(
+                              Causa,
+                              IdCausa = ThisItem.IdCausa,
+                              Caratula
+                          )
+                        Width: =549
+                  - Label5_2:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        OnSelect: =Select(Parent)
+                        Text: |-
+                          =LookUp(
+                              Causa,
+                              IdCausa = ThisItem.IdCausa,
+                              NombreOrganismo
+                          )
+                        Width: =346
+                        X: =828
+                  - Label5_6:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(255, 0, 0, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =29
+                        OnSelect: =Select(Parent)
+                        Text: =ThisItem.Fecha
+                        Width: =180
+                        X: =1014
+                        Y: =40
+                  - Label5_1:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        Height: =16
+                        OnSelect: =Select(Parent)
+                        Text: =ThisItem.TituloAudiencia
+                        Width: =549
+                        Y: =41
+                  - Label5_7:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        BorderStyle: =BorderStyle.None
+                        BorderThickness: =2
+                        Color: =RGBA(50, 49, 48, 1)
+                        DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                        DisabledColor: =RGBA(161, 159, 157, 1)
+                        FocusedBorderThickness: =4
+                        Font: =Font.'Segoe UI'
+                        Height: =28
+                        OnSelect: =Select(Parent)
+                        Text: =ThisItem.CodBarras
+                        Width: =335
+                        Y: =57
+                  - Icon2:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 0)
+                        Color: =RGBA(145, 143, 141, 1)
+                        DisabledBorderColor: =RGBA(245, 245, 245, 1)
+                        DisabledColor: =RGBA(225, 223, 221, 1)
+                        DisabledFill: =RGBA(0, 0, 0, 0)
+                        FocusedBorderThickness: =4
+                        Height: =29
+                        HoverBorderColor: =RGBA(0, 0, 0, 0)
+                        HoverColor: =RGBA(16, 110, 190, 1)
+                        HoverFill: =RGBA(0, 0, 0, 0)
+                        Icon: =Icon.ChevronRight
+                        OnSelect: =Navigate(Reproductor)
+                        PressedBorderColor: =RGBA(0, 0, 0, 0)
+                        PressedColor: =RGBA(16, 110, 190, 1)
+                        PressedFill: =RGBA(0, 0, 0, 0)
+                        Width: =25
+                        X: =1203
+                        Y: =40
+      - Label2:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            Color: =RGBA(50, 49, 48, 1)
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            FocusedBorderThickness: =4
+            Font: =Font.'Segoe UI'
+            FontWeight: =FontWeight.Bold
+            Height: =38
+            Size: =25
+            Text: ="BUSCAR AUDIENCIAS"
+            Width: =357
+            X: =32
+            Y: =68
+      - Icon1:
+          Control: Classic/Icon@2.5.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            Color: =RGBA(145, 143, 141, 1)
+            DisabledBorderColor: =RGBA(245, 245, 245, 1)
+            DisabledColor: =RGBA(225, 223, 221, 1)
+            DisabledFill: =RGBA(0, 0, 0, 0)
+            FocusedBorderThickness: =4
+            Height: =26
+            HoverBorderColor: =RGBA(0, 0, 0, 0)
+            HoverColor: =RGBA(16, 110, 190, 1)
+            HoverFill: =RGBA(0, 0, 0, 0)
+            Icon: =Icon.FilterFlat
+            OnSelect: |+
+              =Set(varMostrarFiltro, true)
+            PressedBorderColor: =RGBA(0, 0, 0, 0)
+            PressedColor: =RGBA(16, 110, 190, 1)
+            PressedFill: =RGBA(0, 0, 0, 0)
+            Width: =29
+            X: =1257
+            Y: =131
+      - TextInput1:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =RGBA(159, 197, 229, 1)
+            Color: =RGBA(50, 49, 48, 1)
+            Default: =
+            DisabledBorderColor: =RGBA(0, 0, 0, 0)
+            DisabledColor: =RGBA(161, 159, 157, 1)
+            DisabledFill: =RGBA(242, 242, 241, 0)
+            Font: =Font.'Segoe UI'
+            HintText: ="Buscar"
+            HoverBorderColor: =RGBA(16, 110, 190, 1)
+            HoverColor: =RGBA(50, 49, 48, 1)
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedBorderColor: =RGBA(0, 120, 212, 1)
+            PressedColor: =RGBA(50, 49, 48, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            X: =918
+            Y: =124
+      - Rectangle1:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 0)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =2
+            DisabledFill: =RGBA(161, 159, 157, 1)
+            Fill: =RGBA(0, 0, 0, 0.4)
+            FocusedBorderThickness: =4
+            Height: =768
+            HoverFill: =RGBA(0, 0, 0, 0.4)
+            PressedFill: =RGBA(0, 0, 0, 0.4)
+            Visible: =varMostrarFiltro
+            Width: =1366
+      - PantallaAuxFiltro:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Visible: =varMostrarFiltro
+            X: =411
+            Y: =183
+          Children:
+            - Button2:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  BorderStyle: =BorderStyle.None
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  DisabledFill: =RGBA(242, 242, 241, 0)
+                  Fill: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =38
+                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =RGBA(16, 110, 190, 1)
+                  OnSelect: =Set(varMostrarFiltro, false)
+                  PressedBorderColor: =RGBA(0, 69, 120, 1)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(16, 110, 190, 1)
+                  RadiusBottomLeft: =20
+                  RadiusBottomRight: =20
+                  RadiusTopLeft: =20
+                  RadiusTopRight: =20
+                  Size: =13
+                  Text: ="Aplicar"
+                  X: =64
+                  Y: =124
+            - Button2_1:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 0)
+                  BorderStyle: =BorderStyle.None
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  DisabledFill: =RGBA(242, 242, 241, 0)
+                  Fill: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Segoe UI'
+                  Height: =38
+                  HoverBorderColor: =RGBA(0, 0, 0, 0)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =RGBA(16, 110, 190, 1)
+                  OnSelect: |-
+                    =Reset(DatePickerDesde);
+                    Reset(DatePickerHasta);
+                    Set(varMostrarFiltro, false)
+                  PressedBorderColor: =RGBA(0, 69, 120, 1)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(16, 110, 190, 1)
+                  RadiusBottomLeft: =20
+                  RadiusBottomRight: =20
+                  RadiusTopLeft: =20
+                  RadiusTopRight: =20
+                  Size: =13
+                  Text: ="Reset"
+                  X: =272
+                  Y: =124
+            - DatePickerDesde:
+                Control: Classic/DatePicker@2.6.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  DefaultDate: |+
+                    =Min(Audiencia, Fecha)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  DisabledFill: =RGBA(242, 242, 241, 0)
+                  Fill: =RGBA(245, 245, 245, 1)
+                  Font: =Font.'Segoe UI'
+                  IconBackground: =RGBA(0, 120, 212, 1)
+                  IconFill: =RGBA(255, 255, 255, 1)
+                  PaddingTop: =5
+                  Size: =13
+                  Width: =168
+                  X: =64
+                  Y: =67
+            - DatePickerHasta:
+                Control: Classic/DatePicker@2.6.0
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  DisabledFill: =RGBA(242, 242, 241, 0)
+                  Fill: =RGBA(245, 245, 245, 1)
+                  Font: =Font.'Segoe UI'
+                  IconBackground: =RGBA(0, 120, 212, 1)
+                  IconFill: =RGBA(255, 255, 255, 1)
+                  PaddingTop: =5
+                  Size: =13
+                  Width: =168
+                  X: =272
+                  Y: =67
+            - TextCanvas2:
+                Control: Text@0.0.51
+                Properties:
+                  Font: =Font.Verdana
+                  Size: =20
+                  Text: ="Ingrese rango de fechas"
+                  Weight: ='TextCanvas.Weight'.Medium
+                  Width: =270
+                  X: =125
+                  Y: =16

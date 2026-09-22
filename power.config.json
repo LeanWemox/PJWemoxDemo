@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "appId": "7131edc0-1714-4f49-aa97-120d634445fa",
+  "appDisplayName": "Migracion Wemox",
+  "region": "prod",
+  "appType": "CodeApp",
+  "environmentId": "846de39c-1755-ea30-8def-b27e180309e0",
+  "description": " ",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {
+    "wemox_sharedsql_89f42": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_sql"
+    },
+    "wemox_shared_sharepointonline": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+    }
+  },
+  "databaseReferences": {}
+}
