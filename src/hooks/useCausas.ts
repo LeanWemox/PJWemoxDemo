@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { audienciaDataRepository } from '../data/dataRepositories'
 import type { Causa } from '../data/types/causa'
 
@@ -7,34 +7,14 @@ export function useCausas(): {
   loading: boolean
   error: string | null
 } {
-  const [causas, setCausas] = useState<Causa[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const query = useQuery({
+    queryKey: ['causas'],
+    queryFn: () => audienciaDataRepository.getCausas(),
+  })
 
-  useEffect(() => {
-    let cancelled = false
-    void Promise.resolve()
-      .then(() => audienciaDataRepository.getCausas())
-      .then((result) => {
-        if (!cancelled) {
-          setCausas(result)
-          setError(null)
-          setLoading(false)
-        }
-      })
-      .catch((reason: unknown) => {
-        if (!cancelled) {
-          setError(
-            reason instanceof Error ? reason.message : 'Error desconocido',
-          )
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return { causas, loading, error }
+  return {
+    causas: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+  }
 }

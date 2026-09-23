@@ -18,16 +18,6 @@ export interface PowerAppsDataSourcesInfo {
   }
 }
 
-declare global {
-  var __POWER_APPS_DATA_SOURCES__: PowerAppsDataSourcesInfo | undefined
-}
-
-export function getPowerAppsDataSourcesInfo():
-  | PowerAppsDataSourcesInfo
-  | undefined {
-  return globalThis.__POWER_APPS_DATA_SOURCES__
-}
-
 export function createPowerAppsDataClient(
   dataSourcesInfo: PowerAppsDataSourcesInfo,
 ): DataClient {
@@ -49,4 +39,3 @@ export function unwrapPowerAppsResult<T>(
       : `Power Apps operation failed: ${operation}: ${detail}`,
   )
 }
-

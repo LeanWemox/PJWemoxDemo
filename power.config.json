@@ -16,6 +16,41 @@
     },
     "wemox_shared_sharepointonline": {
       "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+    },
+    "c30992d8-4dc8-43b6-9d3a-6993f1183922": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_sql",
+      "displayName": "SQL Server",
+      "dataSources": [
+        "audiencia",
+        "causa",
+        "hito",
+        "asistente",
+        "video"
+      ],
+      "authenticationType": "sqlAuthentication",
+      "sharedConnectionId": "/providers/Microsoft.PowerApps/apis/shared_sql/connections/shared-sql-a58a6cd4-4aea-470a-82b5-11eaba6df685",
+      "dataSets": {
+        "srv-aud-demo.database.windows.net,db-aud-demo": {
+          "dataSources": {
+            "audiencia": {
+              "tableName": "[dbo].[Audiencia]"
+            },
+            "causa": {
+              "tableName": "[dbo].[Causa]"
+            },
+            "hito": {
+              "tableName": "[dbo].[Hito]"
+            },
+            "asistente": {
+              "tableName": "[dbo].[Asistente]"
+            },
+            "video": {
+              "tableName": "[dbo].[Video]"
+            }
+          }
+        }
+      },
+      "xrmConnectionReferenceLogicalName": "wemox_wemox_sharedsql_89f42"
     }
   },
   "databaseReferences": {}

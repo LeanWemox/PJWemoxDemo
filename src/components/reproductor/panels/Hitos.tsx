@@ -26,11 +26,7 @@ export function Hitos({
     return <p className="status-message" role="status">No hay una audiencia seleccionada.</p>
   }
 
-  const audienciaHitos = hitos.filter(
-    (hito) => hito.IdAudiencia === selectedAudienciaId,
-  )
-
-  if (audienciaHitos.length === 0) {
+  if (hitos.length === 0) {
     return <p className="status-message" role="status">No se encontraron hitos.</p>
   }
 
@@ -38,7 +34,7 @@ export function Hitos({
     <section aria-label="Hitos" className="content-panel">
       <h2>Hitos</h2>
       <ul className="content-list">
-        {audienciaHitos.map((hito) => {
+        {hitos.map((hito) => {
           const titulo = hito.Titulo ?? ''
           let startTime: number | null = null
           let timeError = false

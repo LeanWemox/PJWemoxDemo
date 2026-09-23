@@ -1,5 +1,6 @@
 import { getJson } from '../httpClient'
 import { getClient } from '@microsoft/power-apps/data'
+import type { PowerAppsDataSourcesInfo } from '../powerAppsRuntime'
 import type { Audiencia } from '../types/audiencia'
 import type { Asistente } from '../types/asistente'
 import type { Causa } from '../types/causa'
@@ -12,31 +13,6 @@ import type {
   AudienciaRepository,
 } from './audienciaRepository'
 import type { HitoRepository } from './hitoRepository'
-
-export interface NativeDataSourcesInfo {
-  [name: string]: {
-    tableId: string
-    apis: Record<string, {
-      path: string
-      method: string
-      parameters: Array<{
-        name: string
-        in: string
-        required: boolean
-        type: string
-        format?: string
-      }>
-    }>
-  }
-}
-
-declare global {
-  var __POWER_APPS_DATA_SOURCES__: NativeDataSourcesInfo | undefined
-}
-
-export function getNativeDataSourcesInfo(): NativeDataSourcesInfo | undefined {
-  return globalThis.__POWER_APPS_DATA_SOURCES__
-}
 
 function nativeResult<T>(result: {
   success: boolean
@@ -51,8 +27,65 @@ function nativeResult<T>(result: {
   return result.data
 }
 
+function numberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
+function booleanOrNull(value: unknown): boolean | null {
+  if (value === null || value === undefined || value === '') return null
+  if (typeof value === 'boolean') return value
+  return value === 'true' || value === '1'
+}
+
+function mapAudiencia(value: Audiencia): Audiencia {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    IdAudiencia: Number(record.IdAudiencia),
+    IdCausa: numberOrNull(record.IdCausa),
+    Privada: booleanOrNull(record.Privada),
+    Menores: booleanOrNull(record.Menores),
+    RequiereValidacion: booleanOrNull(record.RequiereValidacion),
+    postAudienciaApp: booleanOrNull(record.postAudienciaApp),
+  }
+}
+
+function mapHito(value: Hito): Hito {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    idHito: Number(record.idHito),
+    IdAudiencia: numberOrNull(record.IdAudiencia),
+  }
+}
+
+function mapAsistente(value: Asistente): Asistente {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    IdAsistente: Number(record.IdAsistente),
+    IdAudiencia: numberOrNull(record.IdAudiencia),
+    Presente: booleanOrNull(record.Presente),
+    EsAbogado: booleanOrNull(record.EsAbogado),
+  }
+}
+
+function mapCausa(value: Causa): Causa {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    IdCausa: Number(record.IdCausa),
+    IdCausaAugusta: record.IdCausaAugusta === null
+      ? null
+      : String(record.IdCausaAugusta),
+    IdOrg: numberOrNull(record.IdOrg),
+  }
+}
+
 export function createNativePowerAppsRepositories(
-  dataSourcesInfo: NativeDataSourcesInfo,
+  dataSourcesInfo: PowerAppsDataSourcesInfo,
 ): {
   audiencia: AudienciaRepository
   hito: HitoRepository
@@ -63,52 +96,85 @@ export function createNativePowerAppsRepositories(
   return {
     audiencia: {
       search: async (filters) => {
+        const text = filters.text.trim()
+        const causeFilter = text === ''
+          ? null
+          : nativeResult<Causa[]>(
+            await client.retrieveMultipleRecordsAsync<Causa>('causa', {
+              select: ['IdCausa', 'Caratula'],
+              filter: `contains(Caratula,'${text.replaceAll("'", "''")}')`,
+            }),
+          ).map((causa) => `IdCausa eq ${causa.IdCausa}`)
+        const textFilter = text === ''
+          ? null
+          : [
+            `contains(CodBarras,'${text.replaceAll("'", "''")}')`,
+            ...(causeFilter ?? []),
+          ].join(' or ')
         const clauses = [
-          filters.text === ''
-            ? null
-            : `contains(CodBarras,'${filters.text.replaceAll("'", "''")}')`,
+          textFilter,
           filters.fromDate === null ? null : `Fecha ge '${filters.fromDate}'`,
           filters.toDate === null ? null : `Fecha le '${filters.toDate}'`,
         ].filter((clause): clause is string => clause !== null)
         const result = await client.retrieveMultipleRecordsAsync<Audiencia>(
-          '[dbo].[Audiencia]',
+          'audiencia',
           {
+            select: ['IdAudiencia', 'Fecha', 'HoraInicio', 'HoraFin',
+              'TituloAudiencia', 'IdCausa', 'CodBarras', 'Notas',
+              'Estado', 'TipoAudiencia', 'OrganizadorUser'],
             filter: clauses.join(' and ') || undefined,
             orderBy: ['Fecha desc'],
           },
         )
-        return nativeResult(result)
+        return (nativeResult<Audiencia[]>(result) ?? []).map(mapAudiencia)
       },
       getById: async (id) => {
         const result = await client.retrieveMultipleRecordsAsync<Audiencia>(
-          '[dbo].[Audiencia]',
-          { filter: `IdAudiencia eq ${id}`, top: 1 },
+          'audiencia',
+          {
+            select: ['IdAudiencia', 'Fecha', 'HoraInicio', 'HoraFin',
+              'TituloAudiencia', 'IdCausa', 'CodBarras', 'Notas',
+              'Estado', 'TipoAudiencia', 'OrganizadorUser'],
+            filter: `IdAudiencia eq ${id}`,
+            top: 1,
+          },
         )
-        return nativeResult<Audiencia[]>(result)[0] ?? null
+        const audiencias = (nativeResult<Audiencia[]>(result) ?? []).map(mapAudiencia)
+        return audiencias[0] ?? null
       },
       getCausas: async () =>
-        nativeResult(
-          await client.retrieveMultipleRecordsAsync<Causa>('[dbo].[Causa]'),
-        ),
+        (nativeResult<Causa[]>(
+          await client.retrieveMultipleRecordsAsync<Causa>('causa', {
+            select: [
+              'IdCausa',
+              'Caratula',
+              'NombreOrganismo',
+              'LocalidadJuzgado',
+              'Numero',
+              'Sufijo',
+            ],
+          }),
+        ) ?? []).map(mapCausa),
     },
     hito: {
-      getByAudienciaId: async (audienciaId) =>
-        nativeResult(
-          await client.retrieveMultipleRecordsAsync<Hito>('[dbo].[Hito]', {
-            filter: `IdAudiencia eq ${audienciaId}`,
+      getByAudienciaId: async () =>
+        (nativeResult<Hito[]>(
+          await client.retrieveMultipleRecordsAsync<Hito>('hito', {
+            select: ['idHito', 'IdAudiencia', 'Titulo', 'FechaAlta'],
           }),
-        ),
+        ) ?? []).map(mapHito),
     },
     asistente: {
       getPresentesByAudienciaId: async (audienciaId) =>
-        nativeResult(
+        (nativeResult<Asistente[]>(
           await client.retrieveMultipleRecordsAsync<Asistente>(
-            '[dbo].[Asistente]',
+            'asistente',
             {
+              select: ['IdAsistente', 'Nombre', 'Rol', 'IdAudiencia', 'Presente'],
               filter: `IdAudiencia eq ${audienciaId} and Presente eq true`,
             },
           ),
-        ),
+        ) ?? []).map(mapAsistente),
     },
   }
 }

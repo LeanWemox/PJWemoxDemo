@@ -63,18 +63,35 @@ export function AudienciaRow({
       role="button"
       tabIndex={0}
     >
+      <div className="audiencia-row__summary">
+        <strong className="audiencia-row__title">
+          {audiencia.TituloAudiencia ?? 'Audiencia judicial'}
+        </strong>
+        <span className="audiencia-row__type">
+          {audiencia.TipoAudiencia ?? 'Audiencia'}
+        </span>
+        <span className="audiencia-row__code">
+          {audiencia.CodBarras ?? `Expediente ${audiencia.IdAudiencia}`}
+        </span>
+      </div>
+      <div className="audiencia-row__court">
+        <strong>{causa?.NombreOrganismo ?? 'Poder Judicial de Corrientes'}</strong>
+        <span>
+          {causa?.LocalidadJuzgado ??
+            causa?.Caratula ??
+            (audiencia.IdCausa === null
+              ? 'Causa sin organismo asociado'
+              : `Causa #${audiencia.IdCausa}`)}
+        </span>
+      </div>
       <time className="audiencia-row__date" dateTime={audiencia.Fecha ?? undefined}>
         {formatDate(audiencia.Fecha)}
       </time>
-      <strong className="audiencia-row__code">{audiencia.CodBarras ?? 'Sin código de barras'}</strong>
-      <span className="audiencia-row__title">{audiencia.TituloAudiencia ?? 'Sin título'}</span>
-      <span className="audiencia-row__cause">
-        Causa:{' '}
-        {causa?.Caratula ??
-          (audiencia.IdCausa === null
-            ? 'Sin causa asociada'
-            : `#${audiencia.IdCausa}`)}
-      </span>
+      <span className="audiencia-row__open" aria-hidden="true">›</span>
+      <div className="audiencia-row__status" aria-label={`Estado: ${audiencia.Estado ?? 'No informado'}`}>
+        <span className="audiencia-row__status-dot" />
+        {audiencia.Estado ?? 'Consulta disponible'}
+      </div>
     </article>
   )
 }

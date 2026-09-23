@@ -52,6 +52,19 @@ export function VideoPlayer({
     return <p className="status-message" role="status">Video no disponible.</p>
   }
 
+  if (url.includes('/_layouts/15/embed.aspx')) {
+    return (
+      <iframe
+        aria-label={title}
+        className="video-player video-player--embed"
+        src={url}
+        title={title}
+        allow="autoplay; fullscreen; encrypted-media"
+        allowFullScreen
+      />
+    )
+  }
+
   return (
     <video
       aria-label={title}

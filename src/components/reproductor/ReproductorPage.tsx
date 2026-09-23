@@ -14,6 +14,7 @@ import { Notas } from './panels/Notas'
 import { Transcripcion } from './panels/Transcripcion'
 import { ReproductorTabs } from './ReproductorTabs'
 import { VideoPlayer } from './VideoPlayer'
+import judicialLogo from '../../assets/logo-poder-judicial-corrientes.png'
 
 interface ReproductorPageProps {
   audiencia?: Audiencia | null
@@ -56,15 +57,26 @@ export function ReproductorPage({
   return (
     <main className="page-shell player-page">
       <header className="page-header player-header">
-        <button type="button" onClick={() => selectAudiencia(null)}>
-          ← Volver al buscador
+        <button className="button button--ghost back-button" type="button" onClick={() => selectAudiencia(null)}>
+          <span aria-hidden="true">←</span> Volver al buscador
         </button>
         <div>
-          <h1>{audienciaLabel}</h1>
-          <p>
-            {audienciaLoading && 'Cargando audiencia...'}
-            {audienciaError && `Error: ${audienciaError}`}
-          </p>
+          <div className="brand-heading brand-heading--compact">
+            <div className="brand-mark">
+              <img
+                src={judicialLogo}
+                alt="Provincia de Corrientes - Poder Judicial"
+              />
+            </div>
+            <div>
+              <p className="eyebrow">Poder Judicial de Corrientes · Sala de audiencias</p>
+              <h1>{audienciaLabel}</h1>
+              <p>
+                {audienciaLoading && 'Cargando audiencia...'}
+                {audienciaError && `Error: ${audienciaError}`}
+              </p>
+            </div>
+          </div>
         </div>
         <dl className="audiencia-details">
           <div><dt>Audiencia</dt><dd>{audienciaId ?? 'No disponible'}</dd></div>
@@ -74,43 +86,50 @@ export function ReproductorPage({
         </dl>
       </header>
       <div className="player-layout">
-        {video.loading && (
-          <p className="status-message" role="status">
-            Cargando video desde SharePoint...
-          </p>
-        )}
-        {video.error !== null && (
-          <p className="status-message" role="alert">{video.error}</p>
-        )}
-        {!video.loading && <VideoPlayer startTime={startTime} url={video.url} />}
-        <aside className="player-sidebar">
+        <div className="player-main">
+          {video.loading && (
+            <p className="status-message" role="status">
+              Cargando video desde SharePoint...
+            </p>
+          )}
+          {video.error !== null && (
+            <p className="status-message" role="alert">{video.error}</p>
+          )}
+          {!video.loading && <VideoPlayer startTime={startTime} url={video.url} />}
           <ReproductorTabs />
           <section
             aria-label={`Panel ${activeTab}`}
             aria-live="polite"
             className="player-panel"
           >
-        {activeTab === 'transcripcion' && <Transcripcion />}
-        {activeTab === 'hitos' && (
-          <Hitos hitos={hitos.hitos} error={hitos.error} isLoading={hitos.loading} />
-        )}
-        {activeTab === 'notas' && (
-          <Notas
-            audiencias={notas.audiencias}
-            error={notas.error}
-            isLoading={notas.loading}
-          />
-        )}
-        {activeTab === 'asistencia' && (
-          <Asistentes
-            asistentes={asistentes.asistentes}
-            error={asistentes.error}
-            isLoading={asistentes.loading}
-          />
-        )}
+            {activeTab === 'transcripcion' && <Transcripcion />}
+            {activeTab === 'hitos' && (
+              <Hitos hitos={hitos.hitos} error={hitos.error} isLoading={hitos.loading} />
+            )}
+            {activeTab === 'notas' && (
+              <Notas
+                audiencias={notas.audiencias}
+                error={notas.error}
+                isLoading={notas.loading}
+              />
+            )}
+            {activeTab === 'asistencia' && (
+              <Asistentes
+                asistentes={asistentes.asistentes}
+                error={asistentes.error}
+                isLoading={asistentes.loading}
+              />
+            )}
             {activeTab === 'archivos' && <Archivos />}
           </section>
-        </aside>
+        </div>
+        {video.loading && (
+          <aside className="player-sidebar">
+            <p className="status-message" role="status">
+              Cargando video desde SharePoint...
+            </p>
+          </aside>
+        )}
       </div>
     </main>
   )

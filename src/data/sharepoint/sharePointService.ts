@@ -7,6 +7,15 @@ import {
 } from '../powerAppsRuntime'
 
 const DOCUMENTOS_TABLE = 'Documentos'
+const DOCUMENTOS_SELECT = [
+  'ID',
+  'Modified',
+  '{IsFolder}',
+  '{Name}',
+  '{Link}',
+  '{Path}',
+  '{FullPath}',
+] as const
 
 export interface SharePointFile {
   id: number
@@ -40,23 +49,26 @@ export function createSharePointService(
     async listItems() {
       const result = await client.retrieveMultipleRecordsAsync<Documento>(
         DOCUMENTOS_TABLE,
-        { orderBy: ['Modified desc'] },
+        {
+          select: [...DOCUMENTOS_SELECT],
+          orderBy: ['Modified desc'],
+        },
       )
-      return unwrapPowerAppsResult(result, 'LIST SharePoint Documentos')
+      return unwrapPowerAppsResult(result, 'LIST SharePoint Documentos') ?? []
     },
 
     async listFiles() {
       const result = await client.retrieveMultipleRecordsAsync<Documento>(
         DOCUMENTOS_TABLE,
         {
+          select: [...DOCUMENTOS_SELECT],
           filter: "'{IsFolder}' eq false",
           orderBy: ['Modified desc'],
         },
       )
-      return unwrapPowerAppsResult(result, 'LIST SharePoint files').map(
+      return (unwrapPowerAppsResult(result, 'LIST SharePoint files') ?? []).map(
         toSharePointFile,
       )
     },
   }
 }
-

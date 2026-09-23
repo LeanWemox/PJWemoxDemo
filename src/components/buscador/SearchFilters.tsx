@@ -28,7 +28,7 @@ export function SearchFilters(): ReactElement {
       onSubmit={handleSubmit}
     >
       <label>
-        Buscar
+        <span>Buscar por código o causa</span>
         <input
           aria-label="Buscar por código de barras o causa"
           type="search"
@@ -37,7 +37,7 @@ export function SearchFilters(): ReactElement {
         />
       </label>
       <label>
-        Desde
+        <span>Fecha desde</span>
         <input
           aria-label="Fecha desde"
           type="date"
@@ -46,7 +46,7 @@ export function SearchFilters(): ReactElement {
         />
       </label>
       <label>
-        Hasta
+        <span>Fecha hasta</span>
         <input
           aria-label="Fecha hasta"
           type="date"
@@ -55,10 +55,10 @@ export function SearchFilters(): ReactElement {
         />
       </label>
       <div className="search-filters__actions">
-        <button type="button" onClick={hideFilters}>
-          Ocultar filtros
+        <button className="button button--secondary" type="button" onClick={hideFilters}>
+          Cerrar filtros
         </button>
-        <button type="button" onClick={handleReset}>
+        <button className="button button--text" type="button" onClick={handleReset}>
           Restablecer
         </button>
       </div>

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react'
 import type { Audiencia } from '../../../data/types/audiencia'
-import { useAppStore } from '../../../state/appStore'
 
 interface NotasProps {
   audiencias: readonly Audiencia[]
@@ -13,14 +12,10 @@ export function Notas({
   isLoading = false,
   error = null,
 }: NotasProps): ReactElement {
-  const selectedAudienciaId = useAppStore((state) => state.selectedAudienciaId)
-
   if (isLoading) return <p className="status-message" role="status">Cargando notas...</p>
   if (error !== null) return <p className="status-message" role="alert">No se pudieron cargar las notas: {error}</p>
 
-  const audiencia = audiencias.find(
-    (item) => item.IdAudiencia === selectedAudienciaId,
-  )
+  const audiencia = audiencias[0]
 
   if (audiencia === undefined) {
     return <p className="status-message" role="status">No se encontraron notas.</p>

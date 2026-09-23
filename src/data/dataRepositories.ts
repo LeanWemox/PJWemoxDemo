@@ -4,28 +4,24 @@ import { hitoRepository } from './sql/hitoRepository'
 import {
   createHttpSqlRepositories,
   createNativePowerAppsRepositories,
-  getNativeDataSourcesInfo,
 } from './sql/realRepositories'
 import {
   createHttpVideoRepository,
   createNativeVideoRepository,
   mockVideoRepository,
 } from './sharepoint/videoRepository'
+import type { PowerAppsDataSourcesInfo } from './powerAppsRuntime'
+import { dataSourcesInfo } from '../../.power/schemas/appschemas/dataSourcesInfo'
 
 const baseUrl = import.meta.env.VITE_BFF_BASE_URL as string | undefined
-const useRealData = import.meta.env.VITE_USE_REAL_DATA === 'true'
-const nativeDataSourcesInfo = getNativeDataSourcesInfo()
+const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true'
+const useHttpData = !useMockData && baseUrl !== undefined
+const useNativeData = !useMockData && import.meta.env.PROD && baseUrl === undefined
 
-if (useRealData && baseUrl === undefined) {
-  throw new Error(
-    'VITE_BFF_BASE_URL is required when VITE_USE_REAL_DATA=true',
-  )
-}
-
-const sqlRepositories = nativeDataSourcesInfo !== undefined
-  ? createNativePowerAppsRepositories(nativeDataSourcesInfo)
-  : useRealData && baseUrl !== undefined
+const sqlRepositories = useHttpData
     ? createHttpSqlRepositories(baseUrl)
+    : useNativeData
+      ? createNativePowerAppsRepositories(dataSourcesInfo)
     : {
         audiencia: mockAudienciaRepository,
         hito: hitoRepository,
@@ -36,8 +32,18 @@ export const audienciaDataRepository = sqlRepositories.audiencia
 export const hitoDataRepository = sqlRepositories.hito
 export const asistenteDataRepository = sqlRepositories.asistente
 export const videoDataRepository =
-  nativeDataSourcesInfo !== undefined
-    ? createNativeVideoRepository(nativeDataSourcesInfo)
-    : useRealData && baseUrl !== undefined
+  useHttpData
     ? createHttpVideoRepository(baseUrl)
+    : useNativeData
+      ? createNativeVideoRepository(dataSourcesInfo)
     : mockVideoRepository
+
+export function createNativeRepositories(dataSourcesInfo: PowerAppsDataSourcesInfo) {
+  const sqlRepositories = createNativePowerAppsRepositories(dataSourcesInfo)
+  return {
+    audiencia: sqlRepositories.audiencia,
+    hito: sqlRepositories.hito,
+    asistente: sqlRepositories.asistente,
+    video: createNativeVideoRepository(dataSourcesInfo),
+  }
+}

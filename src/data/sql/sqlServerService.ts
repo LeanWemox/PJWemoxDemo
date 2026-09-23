@@ -1,4 +1,7 @@
-import type { DataClient } from '@microsoft/power-apps/data'
+import type {
+  DataClient,
+  IOperationOptions,
+} from '@microsoft/power-apps/data'
 import type { Audiencia } from '../types/audiencia'
 import type { Asistente } from '../types/asistente'
 import type { Causa } from '../types/causa'
@@ -10,10 +13,32 @@ import {
 } from '../powerAppsRuntime'
 
 const TABLES = {
-  audiencia: '[dbo].[Audiencia]',
-  causa: '[dbo].[Causa]',
-  hito: '[dbo].[Hito]',
-  asistente: '[dbo].[Asistente]',
+  audiencia: 'audiencia',
+  causa: 'causa',
+  hito: 'hito',
+  asistente: 'asistente',
+} as const
+
+const SELECT = {
+  audiencia: [
+    'IdAudiencia', 'Fecha', 'HoraInicio', 'HoraFin', 'TituloAudiencia',
+    'IdCausa', 'CodBarras', 'OrganizadorUser', 'ObjectIdOrganizador',
+    'Estado', 'Privada', 'Menores', 'RequiereValidacion', 'Notas',
+    'IdAudienciaTeams', 'ThreadIdTeams', 'Archivos', 'Acta', 'TipoAudiencia',
+    'EventIdTeams', 'MeetingIdTeams', 'IdAudienciaAugusta', 'postAudienciaApp',
+  ],
+  causa: [
+    'IdCausa', 'IdCausaAugusta', 'IdOrg', 'NombreOrganismo', 'Prefijo',
+    'Numero', 'Sufijo', 'Caratula', 'Estado', 'LocalidadJuzgado',
+    'IdUnicoCausa',
+  ],
+  hito: ['idHito', 'IdAudiencia', 'Titulo', 'FechaAlta'],
+  asistente: [
+    'IdAsistente', 'Nombre', 'DNI', 'CUIT', 'Genero', 'Email',
+    'DomicilioElectronico', 'Rol', 'Caracter', 'EsAbogado', 'IdAudiencia',
+    'ValidacionRenaper', 'ImagenValidacion', 'Presente', 'TipoAcceso',
+    'Origen', 'VersionColumnName',
+  ],
 } as const
 
 export interface SqlServerService {
@@ -30,6 +55,43 @@ function escapeODataString(value: string): string {
   return value.replaceAll("'", "''")
 }
 
+function toNumber(value: unknown): number {
+  const result = Number(value)
+  if (!Number.isFinite(result)) {
+    throw new Error(`Expected numeric SQL value, received ${String(value)}`)
+  }
+  return result
+}
+
+function mapAudiencia(value: Audiencia): Audiencia {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    IdAudiencia: toNumber(record.IdAudiencia),
+    IdCausa: record.IdCausa === null ? null : toNumber(record.IdCausa),
+  }
+}
+
+function mapHito(value: Hito): Hito {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    idHito: toNumber(record.idHito),
+    IdAudiencia:
+      record.IdAudiencia === null ? null : toNumber(record.IdAudiencia),
+  }
+}
+
+function mapAsistente(value: Asistente): Asistente {
+  const record = value as unknown as Record<string, unknown>
+  return {
+    ...value,
+    IdAsistente: toNumber(record.IdAsistente),
+    IdAudiencia:
+      record.IdAudiencia === null ? null : toNumber(record.IdAudiencia),
+  }
+}
+
 export function createSqlServerService(
   dataSourcesInfo: PowerAppsDataSourcesInfo,
 ): SqlServerService {
@@ -38,48 +100,63 @@ export function createSqlServerService(
   async function retrieveMany<T>(
     tableName: string,
     operation: string,
-    options?: Parameters<DataClient['retrieveMultipleRecordsAsync']>[1],
+    options?: IOperationOptions,
   ): Promise<T[]> {
     const result = await client.retrieveMultipleRecordsAsync<T>(
       tableName,
       options,
     )
-    return unwrapPowerAppsResult(result, operation)
+    return unwrapPowerAppsResult(result, operation) ?? []
   }
 
   return {
-    listAudiencias: () =>
-      retrieveMany<Audiencia>(TABLES.audiencia, 'SELECT Audiencia', {
-        orderBy: ['Fecha desc'],
-      }),
+    listAudiencias: async () =>
+      (
+        await retrieveMany<Audiencia>(TABLES.audiencia, 'SELECT Audiencia', {
+          select: [...SELECT.audiencia],
+          orderBy: ['Fecha desc'],
+        })
+      ).map(mapAudiencia),
 
     async getAudiencia(id) {
       const records = await retrieveMany<Audiencia>(
         TABLES.audiencia,
         `SELECT Audiencia ${id}`,
-        { filter: `IdAudiencia eq ${id}`, top: 1 },
+        {
+          select: [...SELECT.audiencia],
+          filter: `IdAudiencia eq ${id}`,
+          top: 1,
+        },
       )
-      return records[0] ?? null
+      return records.map(mapAudiencia)[0] ?? null
     },
 
     listCausas: () =>
-      retrieveMany<Causa>(TABLES.causa, 'SELECT Causa'),
-
-    listHitos: (audienciaId) =>
-      retrieveMany<Hito>(TABLES.hito, `SELECT Hito ${audienciaId}`, {
-        filter: `IdAudiencia eq ${audienciaId}`,
+      retrieveMany<Causa>(TABLES.causa, 'SELECT Causa', {
+        select: [...SELECT.causa],
       }),
 
-    listAsistentes: (audienciaId, onlyPresentes = true) =>
-      retrieveMany<Asistente>(
+    listHitos: async (audienciaId) =>
+      (
+        await retrieveMany<Hito>(TABLES.hito, `SELECT Hito ${audienciaId}`, {
+          select: [...SELECT.hito],
+          filter: `IdAudiencia eq ${audienciaId}`,
+        })
+      ).map(mapHito),
+
+    listAsistentes: async (audienciaId, onlyPresentes = true) =>
+      (
+        await retrieveMany<Asistente>(
         TABLES.asistente,
         `SELECT Asistente ${audienciaId}`,
         {
-          filter: onlyPresentes
+            select: [...SELECT.asistente],
+            filter: onlyPresentes
             ? `IdAudiencia eq ${audienciaId} and Presente eq true`
             : `IdAudiencia eq ${audienciaId}`,
         },
-      ),
+        )
+      ).map(mapAsistente),
 
     async createAudiencia(values) {
       const result = await client.createRecordAsync<
@@ -114,4 +191,3 @@ export function buildAudienciaFilter(
 
   return clauses.length === 0 ? undefined : clauses.join(' and ')
 }
-
